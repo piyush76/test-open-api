@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS user_ops_entity (
 
 INSERT INTO user_ops_entity (personnel_id, company_id, ops_entity_id, ops_company_id, admin_role) 
 SELECT * FROM (VALUES 
-(1, 'COMP1', 'OPS1', 'OPSCOMP1', 'Admin'),
-(2, 'COMP1', 'OPS2', 'OPSCOMP1', 'Grant Admin'),
-(1, 'COMP2', 'OPS3', 'OPSCOMP2', 'Admin')
+(3, 'HostCompany', 'TestOpsEntity', 'TestOperatingCompany', 'Grant Admin'),
+(2, 'HostCompany', 'TestOpsEntity', 'TestOperatingCompany', 'Grant Admin'),
+(1, 'COMP1', 'OPS1', 'OPSCOMP1', 'Admin')
 ) AS tmp(personnel_id, company_id, ops_entity_id, ops_company_id, admin_role)
 WHERE NOT EXISTS (
     SELECT 1 FROM user_ops_entity 

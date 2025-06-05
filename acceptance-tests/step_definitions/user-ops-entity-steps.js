@@ -91,16 +91,12 @@ Then('the company ID should be {string}', function(expectedCompanyId) {
   expect(data.companyId).to.equal(expectedCompanyId);
 });
 
-Then('the operations entity ID should be present', function() {
+Then('the operations entity ID should be {string}', function(expectedOpsEntityId) {
   const data = testContext.response.data;
   expect(data.opsEntityId).to.exist;
   expect(data.opsEntityId).to.be.a('string');
+  expect(data.opsEntityId).to.equal(expectedOpsEntityId);
   expect(data.opsEntityId.length).to.be.greaterThan(0);
-  
-  expect(data.opsEntityId).to.not.contain(' ');
-  expect(data.opsEntityId).to.match(/^[A-Z0-9]+$/); // Should be alphanumeric uppercase
-  expect(data.opsEntityId.length).to.be.at.least(3);
-  expect(data.opsEntityId.length).to.be.at.most(20);
 });
 
 Then('the admin role should be present', function() {
