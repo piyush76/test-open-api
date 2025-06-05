@@ -58,11 +58,27 @@ Then('the response status code should be {int}', function(expectedStatus) {
 
 Then('the response should contain valid user operations entity data', function() {
   const data = testContext.response.data;
+  const response = testContext.response;
+  
   expect(data).to.be.an('object');
+  expect(data).to.not.be.null;
+  expect(data).to.not.be.undefined;
+  
   expect(data).to.have.property('personnelId');
   expect(data).to.have.property('companyId');
   expect(data).to.have.property('opsEntityId');
   expect(data).to.have.property('adminRole');
+  
+  expect(data.personnelId).to.be.a('number');
+  expect(data.companyId).to.be.a('string');
+  expect(data.opsEntityId).to.be.a('string');
+  
+  expect(data.personnelId).to.be.greaterThan(0);
+  expect(data.companyId).to.have.length.greaterThan(0);
+  expect(data.opsEntityId).to.have.length.greaterThan(0);
+  
+  expect(response.headers).to.have.property('content-type');
+  expect(response.headers['content-type']).to.include('application/json');
 });
 
 Then('the personnel ID should be {int}', function(expectedPersonnelId) {
@@ -80,17 +96,33 @@ Then('the operations entity ID should be present', function() {
   expect(data.opsEntityId).to.exist;
   expect(data.opsEntityId).to.be.a('string');
   expect(data.opsEntityId.length).to.be.greaterThan(0);
+  
+  expect(data.opsEntityId).to.not.contain(' ');
+  expect(data.opsEntityId).to.match(/^[A-Z0-9]+$/); // Should be alphanumeric uppercase
+  expect(data.opsEntityId.length).to.be.at.least(3);
+  expect(data.opsEntityId.length).to.be.at.most(20);
 });
 
 Then('the admin role should be present', function() {
   const data = testContext.response.data;
   expect(data.adminRole).to.exist;
+  expect(data.adminRole).to.not.be.null;
+  expect(data.adminRole).to.not.be.undefined;
+  
   if (typeof data.adminRole === 'string') {
     expect(data.adminRole).to.be.a('string');
     expect(data.adminRole.length).to.be.greaterThan(0);
+    
+    const validRoles = ['Admin', 'Grant Admin', 'Super Admin', 'Read Only'];
+    expect(validRoles).to.include(data.adminRole);
+    
+    expect(data.adminRole).to.not.match(/^\s+|\s+$/); // No leading/trailing whitespace
+    expect(data.adminRole.length).to.be.at.most(50);
   } else {
     expect(data.adminRole).to.be.an('object');
     expect(data.adminRole).to.have.property('value');
+    expect(data.adminRole.value).to.be.a('string');
+    expect(data.adminRole.value.length).to.be.greaterThan(0);
   }
 });
 
@@ -104,24 +136,114 @@ Then('the admin role should be {string}', function(expectedAdminRole) {
 });
 
 Then('the response should contain an error message', function() {
-  expect(testContext.response.status).to.be.oneOf([400, 404, 500]);
-  expect(testContext.response.data).to.exist;
+  const response = testContext.response;
+  const data = response.data;
+  
+  expect(response.status).to.be.oneOf([400, 404, 500]);
+  expect(data).to.exist;
+  
+  if (typeof data === 'string' && data === '') {
+    expect(response.status).to.be.oneOf([400, 404, 500]);
+  } else if (typeof data === 'object' && data !== null) {
+    expect(data).to.have.property('timestamp');
+    expect(data).to.have.property('status');
+    expect(data).to.have.property('error');
+    
+    expect(data.timestamp).to.be.a('string');
+    expect(data.status).to.be.a('number');
+    expect(data.error).to.be.a('string');
+    expect(data.status).to.equal(response.status);
+    
+    expect(data.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+  }
+  
+  if (response.headers['content-type']) {
+    expect(response.headers['content-type']).to.include('application/json');
+  }
 });
 
 Then('the response should contain the updated user operations entity', function() {
   const data = testContext.response.data;
+  const response = testContext.response;
+  
   expect(data).to.be.an('object');
+  expect(data).to.not.be.null;
+  expect(data).to.not.be.undefined;
+  
   expect(data).to.have.property('personnelId');
   expect(data).to.have.property('companyId');
+  expect(data).to.have.property('opsEntityId');
   expect(data).to.have.property('adminRole');
+  
+  expect(data.personnelId).to.be.a('number');
+  expect(data.companyId).to.be.a('string');
+  expect(data.opsEntityId).to.be.a('string');
+  expect(data.personnelId).to.be.greaterThan(0);
+  expect(data.companyId.length).to.be.greaterThan(0);
+  expect(data.opsEntityId.length).to.be.greaterThan(0);
+  
+  if (testContext.expectedPersonnelId) {
+    expect(data.personnelId).to.equal(testContext.expectedPersonnelId);
+  }
+  if (testContext.expectedCompanyId) {
+    expect(data.companyId).to.equal(testContext.expectedCompanyId);
+  }
+  
+  expect(response.headers).to.have.property('content-type');
+  expect(response.headers['content-type']).to.include('application/json');
 });
 
 Then('the response should contain a validation error message', function() {
-  expect(testContext.response.status).to.be.oneOf([400, 500]);
-  expect(testContext.response.data).to.exist;
+  const response = testContext.response;
+  const data = response.data;
+  
+  expect(response.status).to.be.oneOf([400, 500]);
+  expect(data).to.exist;
+  expect(data).to.not.be.null;
+  
+  expect(data).to.be.an('object');
+  expect(data).to.have.property('timestamp');
+  expect(data).to.have.property('status');
+  expect(data).to.have.property('error');
+  
+  expect(data.timestamp).to.be.a('string');
+  expect(data.status).to.be.a('number');
+  expect(data.error).to.be.a('string');
+  expect(data.status).to.equal(response.status);
+  
+  if (response.status === 400) {
+    expect(data.error).to.include('Bad Request');
+  } else if (response.status === 500) {
+    expect(data.error).to.include('Internal Server Error');
+  }
+  
+  expect(response.headers['content-type']).to.include('application/json');
 });
 
 Then('the response should contain an authentication error message', function() {
-  expect(testContext.response.status).to.equal(401);
-  expect(testContext.response.data).to.exist;
+  const response = testContext.response;
+  const data = response.data;
+  
+  expect(response.status).to.equal(401);
+  expect(data).to.exist;
+  
+  if (typeof data === 'string' && data === '') {
+    expect(response.status).to.equal(401);
+  } else if (typeof data === 'object' && data !== null) {
+    expect(data).to.have.property('timestamp');
+    expect(data).to.have.property('status');
+    expect(data).to.have.property('error');
+    
+    expect(data.status).to.equal(401);
+    expect(data.error).to.include('Unauthorized');
+    expect(data.timestamp).to.be.a('string');
+  }
+  
+  if (response.headers['www-authenticate']) {
+    expect(response.headers['www-authenticate']).to.include('Basic');
+  }
+  
+  if (response.headers['content-type']) {
+    expect(response.headers['content-type']).to.include('application/json');
+  }
 });
