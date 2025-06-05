@@ -1,0 +1,17 @@
+{
+  "name": "spring-boot-userops-api-acceptance-tests",
+  "version": "1.0.0",
+  "description": "JavaScript Cucumber acceptance tests for UserOps API",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:report": "cucumber-js --format html:reports/cucumber-report.html"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.1",
+    "axios": "^1.6.2",
+    "chai": "^4.3.10"
+  },
+  "keywords": ["cucumber", "acceptance-tests", "api-testing"],
+  "author": "Devin AI",
+  "license": "MIT"
+}
