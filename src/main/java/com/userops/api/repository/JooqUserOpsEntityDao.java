@@ -2,6 +2,7 @@ package com.userops.api.repository;
 
 import com.userops.api.model.AdminRole;
 import com.userops.api.model.UserOpsEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,12 @@ import java.sql.SQLException;
 public class JooqUserOpsEntityDao implements UserOpsEntityDao {
 
     private final JdbcTemplate jdbcTemplate;
+    
+    @Value("${userops.sql.getUserOpsEntity}")
+    private String getUserOpsEntitySql;
+    
+    @Value("${userops.sql.updateOpsEntityAdminRole}")
+    private String updateOpsEntityAdminRoleSql;
 
     public JooqUserOpsEntityDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -20,11 +27,8 @@ public class JooqUserOpsEntityDao implements UserOpsEntityDao {
 
     @Override
     public UserOpsEntity getUserOpsEntity(final Long personnelId, final String companyId) {
-        String sql = "SELECT personnel_id, company_id, ops_entity_id, ops_company_id, admin_role " +
-                    "FROM user_ops_entity WHERE personnel_id = ? AND company_id = ?";
-        
         try {
-            return jdbcTemplate.queryForObject(sql, new UserOpsEntityRowMapper(), personnelId, companyId);
+            return jdbcTemplate.queryForObject(getUserOpsEntitySql, new UserOpsEntityRowMapper(), personnelId, companyId);
         } catch (Exception e) {
             return null;
         }
@@ -36,9 +40,7 @@ public class JooqUserOpsEntityDao implements UserOpsEntityDao {
         final String companyId,
         final AdminRole adminRole
     ) {
-        String sql = "UPDATE user_ops_entity SET admin_role = ? WHERE personnel_id = ? AND company_id = ?";
-        
-        int updated = jdbcTemplate.update(sql, adminRole.getValue(), personnelId, companyId);
+        int updated = jdbcTemplate.update(updateOpsEntityAdminRoleSql, adminRole.getValue(), personnelId, companyId);
         
         if (updated > 0) {
             return getUserOpsEntity(personnelId, companyId);
