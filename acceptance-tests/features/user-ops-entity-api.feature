@@ -24,19 +24,19 @@ Feature: UserOps Entity API Acceptance Tests
 
   Scenario: Update admin role for existing entity
     Given a user operations entity exists for personnel ID 2 and company ID "HostCompany"
-    When I send a PUT request to "/iam/users/2/companies/HostCompany/ops-entity" with admin role "Admin"
+    When I send a PUT request to "/iam/users/2/companies/HostCompany/ops-entity" with ops entity admin role "Admin"
     Then the response status code should be 200
     And the response should contain the updated user operations entity
     And the admin role should be "Admin"
 
   Scenario: Update admin role for non-existent entity
-    When I send a PUT request to "/iam/users/999/companies/NONEXISTENT/ops-entity" with admin role "Admin"
+    When I send a PUT request to "/iam/users/999/companies/NONEXISTENT/ops-entity" with ops entity admin role "Admin"
     Then the response status code should be 404
     And the response should contain an error message
 
   Scenario: Update with invalid admin role
     Given a user operations entity exists for personnel ID 3 and company ID "HostCompany"
-    When I send a PUT request to "/iam/users/3/companies/HostCompany/ops-entity" with admin role "Invalid Role"
+    When I send a PUT request to "/iam/users/3/companies/HostCompany/ops-entity" with ops entity admin role "Invalid Role"
     Then the response status code should be 500
     And the response should contain a validation error message
 

@@ -44,7 +44,7 @@ When('I send a GET request to {string}', async function(endpoint) {
   testContext.response = await apiDriver.get(endpoint);
 });
 
-When('I send a PUT request to {string} with admin role {string}', async function(endpoint, adminRole) {
+When('I send a PUT request to {string} with ops entity admin role {string}', async function(endpoint, adminRole) {
   testContext.response = await apiDriver.put(endpoint, `"${adminRole}"`);
 });
 
