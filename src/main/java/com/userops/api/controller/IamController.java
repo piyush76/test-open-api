@@ -91,21 +91,47 @@ public class IamController {
               description = "CREATE or UPDATE Admin Role Operation for USER OPS Entity. Create will insert a new record only if it doesn't exist.\r\nUpdate will just update the admin role to \"Admin\" \"Grant Admin\" or null ")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "201", description = "Created")
+        @ApiResponse(responseCode = "201", description = "Created"),
+        @ApiResponse(responseCode = "400", description = "Bad Request"),
+        @ApiResponse(responseCode = "404", description = "Not Found"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<UserOpsEntity> createOrUpdateUserOpsEntity(
-        @Parameter(description = "User ID", required = true) @PathVariable String userId,
-        @Parameter(description = "Company ID", required = true) @PathVariable String companyId,
-        @Parameter(description = "Operations Entity ID", required = true) @PathVariable String opsEntityId,
-        @RequestBody UserOpsEntity userOpsEntity) {
-        
-        UserOpsEntity existingEntity = userOpsEntityService.getUserOpsEntity(userId, companyId);
-        UserOpsEntity savedEntity = userOpsEntityService.createOrUpdateUserOpsEntity(userId, companyId, opsEntityId, userOpsEntity);
-        
-        if (existingEntity == null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedEntity);
-        } else {
-            return ResponseEntity.ok(savedEntity);
+    public ResponseEntity<UserOpsEntity> updateUserOpsEntityAdminRole(
+        @Parameter(description = "User ID", required = true) @PathVariable("userId") final Long userId,
+        @Parameter(description = "Company ID", required = true) @PathVariable("companyId") final String companyId,
+        @Parameter(description = "Operations Entity ID", required = true) @PathVariable("opsEntityId") final String opsEntityId,
+        @RequestBody(required = false) final UserOpsEntity opsEntity) {
+        try {
+            if (opsEntity == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            List<UserOpsEntity> existingEntities = userOpsEntityService.getAllUserOpsEntities(userId, companyId);
+
+            if (existingEntities.isEmpty()) {
+                opsEntity.setPersonnelId(userId);
+                opsEntity.setCompanyId(companyId);
+                opsEntity.setOpsEntityId(opsEntityId);
+                UserOpsEntity createdEntity = userOpsEntityService.createOrUpdateUserOpsEntity(userId.toString(), companyId, opsEntityId, opsEntity);
+                return ResponseEntity.status(HttpStatus.CREATED).body(createdEntity);
+            } else {
+                UserOpsEntity existingEntity = existingEntities.get(0);
+
+                if (opsEntity.getAdminRole() == null ||
+                    (opsEntity.getAdminRole().getValue() != null && opsEntity.getAdminRole().getValue().trim().isEmpty())) {
+                    existingEntity.setAdminRole(null);
+                } else if ("Admin".equalsIgnoreCase(opsEntity.getAdminRole().getValue()) ||
+                    "Grant Admin".equalsIgnoreCase(opsEntity.getAdminRole().getValue())) {
+                    existingEntity.setAdminRole(opsEntity.getAdminRole());
+                }
+
+                UserOpsEntity updatedEntity = userOpsEntityService.createOrUpdateUserOpsEntity(userId.toString(), companyId, opsEntityId, existingEntity);
+                return ResponseEntity.ok(updatedEntity);
+            }
+        } catch (com.userops.api.exception.EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
