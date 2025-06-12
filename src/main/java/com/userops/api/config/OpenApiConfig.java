@@ -17,19 +17,19 @@ public class OpenApiConfig {
     public OpenAPI userOpsEntityOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("User Operations Entity API")
-                .description("Identity And Access API for managing user operations entity assignments")
+                .title("IAM API")
+                .description("Identity And Access API")
                 .version("1.0")
                 .contact(new Contact()
-                    .name("UserOps API")
-                    .email("support@userops.com")
-                    .url("https://userops.com"))
+                    .name("Incora")
+                    .email("support@incora.com")
+                    .url("https://incora.com"))
                 .license(new License()
-                    .name("Commercial License")
-                    .url("https://www.userops.com")))
+                    .name("Incora Commercial")
+                    .url("https://www.incora.com")))
             .servers(List.of(
                 new Server()
-                    .url("/")
-                    .description("Local development server")));
+                    .url("/chemicals/api/iam")
+                    .description("IAM API server")));
     }
 }

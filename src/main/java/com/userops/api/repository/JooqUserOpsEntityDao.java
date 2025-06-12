@@ -51,6 +51,37 @@ public class JooqUserOpsEntityDao implements UserOpsEntityDao {
         return null;
     }
 
+    @Override
+    public UserOpsEntity saveUserOpsEntity(UserOpsEntity userOpsEntity) {
+        if (existsUserOpsEntity(userOpsEntity.getPersonnelId(), userOpsEntity.getCompanyId(), userOpsEntity.getOpsEntityId())) {
+            String updateSql = "UPDATE user_ops_entity SET ops_company_id = ?, admin_role = ? " +
+                              "WHERE personnel_id = ? AND company_id = ? AND ops_entity_id = ?";
+            jdbcTemplate.update(updateSql, 
+                userOpsEntity.getOpsCompanyId(),
+                userOpsEntity.getAdminRole() != null ? userOpsEntity.getAdminRole().getValue() : null,
+                userOpsEntity.getPersonnelId(), 
+                userOpsEntity.getCompanyId(),
+                userOpsEntity.getOpsEntityId());
+        } else {
+            String insertSql = "INSERT INTO user_ops_entity (personnel_id, company_id, ops_entity_id, ops_company_id, admin_role) " +
+                              "VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(insertSql, 
+                userOpsEntity.getPersonnelId(), 
+                userOpsEntity.getCompanyId(),
+                userOpsEntity.getOpsEntityId(),
+                userOpsEntity.getOpsCompanyId(),
+                userOpsEntity.getAdminRole() != null ? userOpsEntity.getAdminRole().getValue() : null);
+        }
+        return userOpsEntity;
+    }
+
+    @Override
+    public boolean existsUserOpsEntity(Long personnelId, String companyId, String opsEntityId) {
+        String sql = "SELECT COUNT(*) FROM user_ops_entity WHERE personnel_id = ? AND company_id = ? AND ops_entity_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, personnelId, companyId, opsEntityId);
+        return count != null && count > 0;
+    }
+
     private static class UserOpsEntityRowMapper implements RowMapper<UserOpsEntity> {
         @Override
         public UserOpsEntity mapRow(ResultSet rs, int rowNum) throws SQLException {

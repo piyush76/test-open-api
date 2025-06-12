@@ -41,7 +41,7 @@ class UserOpsEntityControllerTest {
     void getUserOpsEntity_ShouldReturnEntityList_WhenExists() throws Exception {
         UserOpsEntity entity = new UserOpsEntity(1L, "COMP1", "OPS1", "OPSCOMP1", AdminRole.ADMIN);
         List<UserOpsEntity> entities = Arrays.asList(entity);
-        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(entities);
+        when(userOpsEntityService.getAllUserOpsEntities(1L, "COMP1")).thenReturn(entities);
 
         mockMvc.perform(get("/iam/users/1/companies/COMP1/ops-entity"))
                 .andExpect(status().isOk())
@@ -56,7 +56,7 @@ class UserOpsEntityControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void getUserOpsEntity_ShouldReturnEmptyList_WhenNotExists() throws Exception {
-        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(Collections.emptyList());
+        when(userOpsEntityService.getAllUserOpsEntities(1L, "COMP1")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/iam/users/1/companies/COMP1/ops-entity"))
                 .andExpect(status().isOk())

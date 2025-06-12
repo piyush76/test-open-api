@@ -42,3 +42,29 @@ WHERE NOT EXISTS (
     AND user_inventory_group.personnel_id = tmp.personnel_id
     AND user_inventory_group.inventory_group = tmp.inventory_group
 );
+
+CREATE TABLE IF NOT EXISTS user_pages (
+    user_id VARCHAR(255) NOT NULL,
+    company_id VARCHAR(255) NOT NULL,
+    page_id VARCHAR(255) NOT NULL,
+    page_name VARCHAR(255),
+    access_level VARCHAR(50),
+    page_url VARCHAR(500),
+    PRIMARY KEY (user_id, company_id, page_id)
+);
+
+INSERT INTO user_pages (user_id, company_id, page_id, page_name, access_level, page_url) 
+SELECT * FROM (VALUES 
+('3', 'HostCompany', 'dashboard', 'Dashboard', 'READ_WRITE', '/dashboard'),
+('3', 'HostCompany', 'reports', 'Reports', 'READ_ONLY', '/reports'),
+('2', 'HostCompany', 'reports', 'Reports', 'READ_ONLY', '/reports'),
+('2', 'HostCompany', 'inventory', 'Inventory', 'READ_WRITE', '/inventory'),
+('1', 'COMP1', 'admin', 'Admin Panel', 'READ_WRITE', '/admin'),
+('1', 'COMP1', 'dashboard', 'Dashboard', 'READ_WRITE', '/dashboard')
+) AS tmp(user_id, company_id, page_id, page_name, access_level, page_url)
+WHERE NOT EXISTS (
+    SELECT 1 FROM user_pages 
+    WHERE user_pages.user_id = tmp.user_id 
+    AND user_pages.company_id = tmp.company_id
+    AND user_pages.page_id = tmp.page_id
+);

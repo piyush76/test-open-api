@@ -9,4 +9,8 @@ public interface UserOpsEntityDao {
     List<UserOpsEntity> getUserOpsEntity(Long personnelId, String companyId);
 
     UserOpsEntity updateOpsEntityAdminRole(Long personnelId, String companyId, AdminRole adminRole);
+
+    UserOpsEntity saveUserOpsEntity(UserOpsEntity userOpsEntity);
+
+    boolean existsUserOpsEntity(Long personnelId, String companyId, String opsEntityId);
 }
