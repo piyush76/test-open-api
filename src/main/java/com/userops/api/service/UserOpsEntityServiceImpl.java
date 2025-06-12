@@ -19,7 +19,24 @@ public class UserOpsEntityServiceImpl implements UserOpsEntityService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserOpsEntity> getUserOpsEntity(Long personnelId, String companyId) {
+    public UserOpsEntity getUserOpsEntity(String userId, String companyId) {
+        Long personnelId = Long.parseLong(userId);
+        List<UserOpsEntity> entities = userOpsEntityDao.getUserOpsEntity(personnelId, companyId);
+        return entities.isEmpty() ? null : entities.get(0);
+    }
+
+    @Override
+    public UserOpsEntity createOrUpdateUserOpsEntity(String userId, String companyId, String opsEntityId, UserOpsEntity userOpsEntity) {
+        Long personnelId = Long.parseLong(userId);
+        userOpsEntity.setPersonnelId(personnelId);
+        userOpsEntity.setCompanyId(companyId);
+        userOpsEntity.setOpsEntityId(opsEntityId);
+        return userOpsEntityDao.saveUserOpsEntity(userOpsEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserOpsEntity> getAllUserOpsEntities(Long personnelId, String companyId) {
         return userOpsEntityDao.getUserOpsEntity(personnelId, companyId);
     }
 

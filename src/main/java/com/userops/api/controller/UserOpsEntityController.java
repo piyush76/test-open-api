@@ -41,7 +41,7 @@ public class UserOpsEntityController {
         @Parameter(description = "User ID", required = true) @PathVariable("userId") final Long userId,
         @Parameter(description = "Company ID", required = true) @PathVariable("companyId") final String companyId) {
         
-        final List<UserOpsEntity> userOpsEntities = this.service.getUserOpsEntity(userId, companyId);
+        final List<UserOpsEntity> userOpsEntities = this.service.getAllUserOpsEntities(userId, companyId);
         return ResponseEntity.ok(userOpsEntities);
     }
 

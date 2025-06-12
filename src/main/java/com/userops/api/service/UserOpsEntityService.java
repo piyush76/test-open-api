@@ -6,7 +6,11 @@ import java.util.List;
 
 public interface UserOpsEntityService {
 
-    List<UserOpsEntity> getUserOpsEntity(Long personnelId, String companyId);
+    UserOpsEntity getUserOpsEntity(String userId, String companyId);
+
+    UserOpsEntity createOrUpdateUserOpsEntity(String userId, String companyId, String opsEntityId, UserOpsEntity userOpsEntity);
+
+    List<UserOpsEntity> getAllUserOpsEntities(Long personnelId, String companyId);
 
     UserOpsEntity updateUserOpsEntityAdminRole(Long personnelId, String companyId, AdminRole adminRole);
 }
