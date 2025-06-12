@@ -71,8 +71,8 @@ public class IamController {
 
     @GetMapping("/users/{userId}/companies/{companyId}/ops-entity")
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Get User Ops Entity", 
-              description = "GET endpoint for the user ops entity")
+    @Operation(summary = "Your GET endpoint", 
+              description = "GET Operation for USER OPS Entity")
     @ApiResponse(responseCode = "200", description = "OK")
     public ResponseEntity<UserOpsEntity> getUserOpsEntity(
         @Parameter(description = "User ID", required = true) @PathVariable String userId,
@@ -87,8 +87,8 @@ public class IamController {
 
     @PutMapping("/users/{userId}/companies/{companyId}/ops-entity/{opsEntityId}")
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Create or Update User Ops Entity", 
-              description = "PUT endpoint for user operation entity with opsEntityId in the URI path")
+    @Operation(summary = "Your PUT endpoint", 
+              description = "CREATE or UPDATE Admin Role Operation for USER OPS Entity. Create will insert a new record only if it doesn't exist.\r\nUpdate will just update the admin role to \"Admin\" \"Grant Admin\" or null ")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "201", description = "Created")
@@ -111,7 +111,7 @@ public class IamController {
 
     @PutMapping("/users/{userId}/companies/{companyId}/pages/{pageId}")
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Create or Update User Page", 
+    @Operation(summary = "Your PUT endpoint", 
               description = "Create or update a user page assignment")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -137,7 +137,7 @@ public class IamController {
 
     @DeleteMapping("/users/{userId}/companies/{companyId}/pages/{pageId}")
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Delete User Page", 
+    @Operation(summary = "Your DELETE endpoint", 
               description = "Delete a user page assignment")
     @ApiResponse(responseCode = "204", description = "No Content")
     public ResponseEntity<Void> deleteUserPage(
