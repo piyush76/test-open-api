@@ -1,0 +1,110 @@
+plugins {
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'nu.studer.jooq' version '8.2.1'
+    id 'org.flywaydb.flyway' version '9.22.3'
+}
+
+group = 'com.incora.api'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    
+    // JOOQ
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    jooqGenerator 'com.h2database:h2:2.2.224'
+    
+    // Database
+    runtimeOnly 'com.h2database:h2:2.2.224'
+    
+    // OpenAPI/Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    
+    // Flyway
+    implementation 'org.flywaydb:flyway-core'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Test Dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+flyway {
+    url = 'jdbc:h2:mem:testdb'
+    user = 'sa'
+    password = ''
+    locations = ['classpath:db/migration']
+}
+
+jooq {
+    version = '3.18.7'
+    edition = nu.studer.gradle.jooq.JooqEdition.OSS
+    
+    configurations {
+        main {
+            generateSchemaSourceOnCompilation = true
+            
+            generationTool {
+                logging = org.jooq.meta.jaxb.Logging.WARN
+                jdbc {
+                    driver = 'org.h2.Driver'
+                    url = 'jdbc:h2:mem:testdb'
+                    user = 'sa'
+                    password = ''
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.h2.H2Database'
+                        inputSchema = 'PUBLIC'
+                    }
+                    generate {
+                        relations = true
+                        deprecated = false
+                        records = true
+                        immutablePojos = false
+                        fluentSetters = true
+                    }
+                    target {
+                        packageName = 'com.incora.api.iam.generated'
+                        directory = 'src/main/java'
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Configure main class for Spring Boot
+springBoot {
+    mainClass = 'com.incora.api.iam.IamApiApplication'
+}
+
+// Ensure Flyway migration runs before JOOQ code generation
+generateJooq.dependsOn flywayMigrate
+compileJava.dependsOn generateJooq
