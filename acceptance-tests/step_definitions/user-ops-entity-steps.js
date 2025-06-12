@@ -56,47 +56,62 @@ Then('the response status code should be {int}', function(expectedStatus) {
   expect(testContext.response.status).to.equal(expectedStatus);
 });
 
-Then('the response should contain valid user operations entity data', function() {
+Then('the response should contain a valid user operations entity array', function() {
   const data = testContext.response.data;
   const response = testContext.response;
   
-  expect(data).to.be.an('object');
+  expect(data).to.be.an('array');
   expect(data).to.not.be.null;
   expect(data).to.not.be.undefined;
   
-  expect(data).to.have.property('personnelId');
-  expect(data).to.have.property('companyId');
-  expect(data).to.have.property('opsEntityId');
-  expect(data).to.have.property('adminRole');
-  
-  expect(data.personnelId).to.be.a('number');
-  expect(data.companyId).to.be.a('string');
-  expect(data.opsEntityId).to.be.a('string');
-  
-  expect(data.personnelId).to.be.greaterThan(0);
-  expect(data.companyId).to.have.length.greaterThan(0);
-  expect(data.opsEntityId).to.have.length.greaterThan(0);
+  if (data.length > 0) {
+    const entity = data[0];
+    expect(entity).to.have.property('personnelId');
+    expect(entity).to.have.property('companyId');
+    expect(entity).to.have.property('opsEntityId');
+    expect(entity).to.have.property('adminRole');
+    
+    expect(entity.personnelId).to.be.a('number');
+    expect(entity.companyId).to.be.a('string');
+    expect(entity.opsEntityId).to.be.a('string');
+    
+    expect(entity.personnelId).to.be.greaterThan(0);
+    expect(entity.companyId).to.have.length.greaterThan(0);
+    expect(entity.opsEntityId).to.have.length.greaterThan(0);
+  }
   
   expect(response.headers).to.have.property('content-type');
   expect(response.headers['content-type']).to.include('application/json');
 });
 
-Then('the personnel ID should be {int}', function(expectedPersonnelId) {
+Then('the array should contain {int} entity', function(expectedCount) {
   const data = testContext.response.data;
-  expect(data.personnelId).to.equal(expectedPersonnelId);
+  expect(data).to.be.an('array');
+  expect(data.length).to.equal(expectedCount);
 });
 
-Then('the company ID should be {string}', function(expectedCompanyId) {
+Then('the first entity personnel ID should be {int}', function(expectedPersonnelId) {
   const data = testContext.response.data;
-  expect(data.companyId).to.equal(expectedCompanyId);
+  expect(data).to.be.an('array');
+  expect(data.length).to.be.greaterThan(0);
+  expect(data[0].personnelId).to.equal(expectedPersonnelId);
 });
 
-Then('the operations entity ID should be {string}', function(expectedOpsEntityId) {
+Then('the first entity company ID should be {string}', function(expectedCompanyId) {
   const data = testContext.response.data;
-  expect(data.opsEntityId).to.exist;
-  expect(data.opsEntityId).to.be.a('string');
-  expect(data.opsEntityId).to.equal(expectedOpsEntityId);
-  expect(data.opsEntityId.length).to.be.greaterThan(0);
+  expect(data).to.be.an('array');
+  expect(data.length).to.be.greaterThan(0);
+  expect(data[0].companyId).to.equal(expectedCompanyId);
+});
+
+Then('the first entity operations entity ID should be {string}', function(expectedOpsEntityId) {
+  const data = testContext.response.data;
+  expect(data).to.be.an('array');
+  expect(data.length).to.be.greaterThan(0);
+  expect(data[0].opsEntityId).to.exist;
+  expect(data[0].opsEntityId).to.be.a('string');
+  expect(data[0].opsEntityId).to.equal(expectedOpsEntityId);
+  expect(data[0].opsEntityId.length).to.be.greaterThan(0);
 });
 
 Then('the admin role should be present', function() {
@@ -131,6 +146,17 @@ Then('the admin role should be {string}', function(expectedAdminRole) {
   }
 });
 
+Then('the first entity admin role should be {string}', function(expectedAdminRole) {
+  const data = testContext.response.data;
+  expect(data).to.be.an('array');
+  expect(data.length).to.be.greaterThan(0);
+  if (typeof data[0].adminRole === 'string') {
+    expect(data[0].adminRole).to.equal(expectedAdminRole);
+  } else {
+    expect(data[0].adminRole.value).to.equal(expectedAdminRole);
+  }
+});
+
 Then('the response should contain an error message', function() {
   const response = testContext.response;
   const data = response.data;
@@ -156,6 +182,12 @@ Then('the response should contain an error message', function() {
   if (response.headers['content-type']) {
     expect(response.headers['content-type']).to.include('application/json');
   }
+});
+
+Then('the response should contain an empty user operations entity array', function() {
+  const data = testContext.response.data;
+  expect(data).to.be.an('array');
+  expect(data.length).to.equal(0);
 });
 
 Then('the response should contain the updated user operations entity', function() {

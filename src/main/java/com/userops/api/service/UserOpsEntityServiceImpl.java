@@ -5,6 +5,7 @@ import com.userops.api.model.UserOpsEntity;
 import com.userops.api.repository.UserOpsEntityDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 @Transactional
@@ -18,7 +19,7 @@ public class UserOpsEntityServiceImpl implements UserOpsEntityService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserOpsEntity getUserOpsEntity(Long personnelId, String companyId) {
+    public List<UserOpsEntity> getUserOpsEntity(Long personnelId, String companyId) {
         return userOpsEntityDao.getUserOpsEntity(personnelId, companyId);
     }
 

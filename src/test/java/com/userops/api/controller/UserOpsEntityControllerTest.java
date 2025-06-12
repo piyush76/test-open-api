@@ -12,6 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -34,26 +38,31 @@ class UserOpsEntityControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    void getUserOpsEntity_ShouldReturnEntity_WhenExists() throws Exception {
+    void getUserOpsEntity_ShouldReturnEntityList_WhenExists() throws Exception {
         UserOpsEntity entity = new UserOpsEntity(1L, "COMP1", "OPS1", "OPSCOMP1", AdminRole.ADMIN);
-        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(entity);
+        List<UserOpsEntity> entities = Arrays.asList(entity);
+        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(entities);
 
         mockMvc.perform(get("/iam/users/1/companies/COMP1/ops-entity"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.personnelId").value(1))
-                .andExpect(jsonPath("$.companyId").value("COMP1"))
-                .andExpect(jsonPath("$.opsEntityId").value("OPS1"))
-                .andExpect(jsonPath("$.adminRole").value("Admin"));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].personnelId").value(1))
+                .andExpect(jsonPath("$[0].companyId").value("COMP1"))
+                .andExpect(jsonPath("$[0].opsEntityId").value("OPS1"))
+                .andExpect(jsonPath("$[0].adminRole").value("Admin"));
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    void getUserOpsEntity_ShouldReturnNotFound_WhenNotExists() throws Exception {
-        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(null);
+    void getUserOpsEntity_ShouldReturnEmptyList_WhenNotExists() throws Exception {
+        when(userOpsEntityService.getUserOpsEntity(1L, "COMP1")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/iam/users/1/companies/COMP1/ops-entity"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test

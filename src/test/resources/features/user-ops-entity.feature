@@ -11,17 +11,18 @@ Feature: User Operations Entity Management
     Given a user operations entity exists with personnel ID 1 and company ID "COMP1"
     When I request the user operations entity for personnel ID 1 and company ID "COMP1"
     Then the response status should be 200
-    And the response should contain the user operations entity details
-    And the personnel ID should be 1
-    And the company ID should be "COMP1"
-    And the operations entity ID should be present
-    And the admin role should be present
+    And the response should contain a list of user operations entities
+    And the list should contain 1 entity
+    And the first entity personnel ID should be 1
+    And the first entity company ID should be "COMP1"
+    And the first entity operations entity ID should be present
+    And the first entity admin role should be present
 
   Scenario: Attempt to retrieve a non-existent user operations entity
     Given no user operations entity exists for personnel ID 999 and company ID "NONEXISTENT"
     When I request the user operations entity for personnel ID 999 and company ID "NONEXISTENT"
-    Then the response status should be 404
-    And the response should contain an error message
+    Then the response status should be 200
+    And the response should contain an empty list of user operations entities
 
   Scenario: Successfully update admin role for an existing user operations entity
     Given a user operations entity exists with personnel ID 1 and company ID "COMP1"

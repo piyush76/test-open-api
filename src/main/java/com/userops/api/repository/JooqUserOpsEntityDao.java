@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class JooqUserOpsEntityDao implements UserOpsEntityDao {
@@ -26,11 +28,11 @@ public class JooqUserOpsEntityDao implements UserOpsEntityDao {
     }
 
     @Override
-    public UserOpsEntity getUserOpsEntity(final Long personnelId, final String companyId) {
+    public List<UserOpsEntity> getUserOpsEntity(final Long personnelId, final String companyId) {
         try {
-            return jdbcTemplate.queryForObject(getUserOpsEntitySql, new UserOpsEntityRowMapper(), personnelId, companyId);
+            return jdbcTemplate.query(getUserOpsEntitySql, new UserOpsEntityRowMapper(), personnelId, companyId);
         } catch (Exception e) {
-            return null;
+            return new ArrayList<>();
         }
     }
 
@@ -43,7 +45,8 @@ public class JooqUserOpsEntityDao implements UserOpsEntityDao {
         int updated = jdbcTemplate.update(updateOpsEntityAdminRoleSql, adminRole.getValue(), personnelId, companyId);
         
         if (updated > 0) {
-            return getUserOpsEntity(personnelId, companyId);
+            List<UserOpsEntity> entities = getUserOpsEntity(personnelId, companyId);
+            return entities.isEmpty() ? null : entities.get(0);
         }
         return null;
     }

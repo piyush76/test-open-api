@@ -1,6 +1,7 @@
 package com.userops.api.cucumber;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.userops.api.model.AdminRole;
 import com.userops.api.model.UserOpsEntity;
 import io.cucumber.java.en.Given;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -90,41 +92,59 @@ public class UserOpsEntityStepDefinitions {
         assertEquals(expectedStatus, response.getStatusCode().value());
     }
 
-    @Then("the response should contain the user operations entity details")
-    public void theResponseShouldContainTheUserOperationsEntityDetails() {
+    @Then("the response should contain a list of user operations entities")
+    public void theResponseShouldContainAListOfUserOperationsEntities() {
         assertNotNull(response.getBody());
+        assertTrue(response.getBody().startsWith("["));
+        assertTrue(response.getBody().endsWith("]"));
         assertTrue(response.getBody().contains("personnelId"));
         assertTrue(response.getBody().contains("companyId"));
     }
 
-    @Then("the personnel ID should be {long}")
-    public void thePersonnelIDShouldBe(Long expectedPersonnelId) throws Exception {
-        UserOpsEntity entity = objectMapper.readValue(response.getBody(), UserOpsEntity.class);
-        assertEquals(expectedPersonnelId, entity.getPersonnelId());
+    @Then("the list should contain {int} entity")
+    public void theListShouldContainEntity(int expectedCount) throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertEquals(expectedCount, entities.size());
     }
 
-    @Then("the company ID should be {string}")
-    public void theCompanyIDShouldBe(String expectedCompanyId) throws Exception {
-        UserOpsEntity entity = objectMapper.readValue(response.getBody(), UserOpsEntity.class);
-        assertEquals(expectedCompanyId, entity.getCompanyId());
+    @Then("the first entity personnel ID should be {long}")
+    public void theFirstEntityPersonnelIDShouldBe(Long expectedPersonnelId) throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertFalse(entities.isEmpty());
+        assertEquals(expectedPersonnelId, entities.get(0).getPersonnelId());
     }
 
-    @Then("the operations entity ID should be present")
-    public void theOperationsEntityIDShouldBePresent() throws Exception {
-        UserOpsEntity entity = objectMapper.readValue(response.getBody(), UserOpsEntity.class);
-        assertNotNull(entity.getOpsEntityId());
+    @Then("the first entity company ID should be {string}")
+    public void theFirstEntityCompanyIDShouldBe(String expectedCompanyId) throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertFalse(entities.isEmpty());
+        assertEquals(expectedCompanyId, entities.get(0).getCompanyId());
     }
 
-    @Then("the admin role should be present")
-    public void theAdminRoleShouldBePresent() throws Exception {
-        UserOpsEntity entity = objectMapper.readValue(response.getBody(), UserOpsEntity.class);
-        assertNotNull(entity.getAdminRole());
+    @Then("the first entity operations entity ID should be present")
+    public void theFirstEntityOperationsEntityIDShouldBePresent() throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertFalse(entities.isEmpty());
+        assertNotNull(entities.get(0).getOpsEntityId());
+    }
+
+    @Then("the first entity admin role should be present")
+    public void theFirstEntityAdminRoleShouldBePresent() throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertFalse(entities.isEmpty());
+        assertNotNull(entities.get(0).getAdminRole());
     }
 
     @Then("the admin role should be {string}")
     public void theAdminRoleShouldBe(String expectedAdminRole) throws Exception {
         UserOpsEntity entity = objectMapper.readValue(response.getBody(), UserOpsEntity.class);
         assertEquals(expectedAdminRole, entity.getAdminRole().getValue());
+    }
+
+    @Then("the response should contain an empty list of user operations entities")
+    public void theResponseShouldContainAnEmptyListOfUserOperationsEntities() throws Exception {
+        List<UserOpsEntity> entities = objectMapper.readValue(response.getBody(), new TypeReference<List<UserOpsEntity>>(){});
+        assertTrue(entities.isEmpty());
     }
 
     @Then("the response should contain an error message")
